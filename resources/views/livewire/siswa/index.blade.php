@@ -93,6 +93,9 @@
                         @endforelse
                     </tbody>
                 </table>
+                <div class="m-2">
+                {{ $siswas->links() }}
+            </div>
             </div>
         </div>
 

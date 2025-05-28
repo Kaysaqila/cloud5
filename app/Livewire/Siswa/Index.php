@@ -4,9 +4,13 @@ namespace App\Livewire\Siswa;
 
 use Livewire\Component;
 use App\Models\Siswa;
+use Livewire\WithPagination;
 
 class Index extends Component
 {
+
+    use WithPagination;
+
     public $search = '';
     public $selected_abjad =[];
     public $selected_rombel =[];
@@ -45,7 +49,7 @@ class Index extends Component
         }
 
         return view('livewire.siswa.index', [
-            'siswas' => $siswas->get(),
+            'siswas' => $siswas->paginate(5),
             'rombels' => $rombels,
         ]);
     }

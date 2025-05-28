@@ -21,26 +21,31 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
-        //utk validasi data
+        // Validasi data
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
-            //tambahkan email unique:users -> unique:users,email
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => $this->passwordRules(),
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
-        //cek apakah input email ada di database atau ga
-        //jika user regis dengan email yg tidak ada di tabel maka
-        if (!Siswa::where('email', $input['email'])->exists()){
+        // Cek apakah email ada di tabel siswa
+        if (!Siswa::where('email', $input['email'])->exists()) {
             throw ValidationException::withMessages([
                 'email' => 'Email tidak terdaftar sebagai siswa',
             ]);
         }
-        return User::create([
+
+        // Buat user baru
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+
+        // Assign role siswa secara otomatis ke user yang baru dibuat
+        $user->assignRole('siswa');
+
+        return $user;
     }
 }
