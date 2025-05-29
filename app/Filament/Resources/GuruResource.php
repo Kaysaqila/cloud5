@@ -121,11 +121,38 @@ class GuruResource extends Resource
                 \Filament\Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->before(function ($record, $action) {
+                            if ($record->pkls()->exists()) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Gagal Menghapus')
+                                    ->body("Guru {$record->nama} masih aktif PKL.")
+                                    ->danger()
+                                    ->send();
+
+                                $action->cancel(); // Hentikan proses hapus tanpa error
+                            }
+                        }),
                 ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->before(function ($records, $action) {
+                            foreach ($records as $record) {
+                                // Cek apakah Guru masih memiliki hubungan dengan data PKL
+                                if ($record->pkls()->exists()) {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Gagal Menghapus')
+                                        ->body("Guru {$record->nama} masih memiliki data PKL terkait.")
+                                        ->danger()
+                                        ->send();
+
+                                    $action->cancel(); // Batalkan penghapusan tanpa error
+                                    return; // Keluar dari loop untuk menghentikan proses lebih lanjut
+                                }
+                            }
+                        }),
                 ]),
             ]);
     }

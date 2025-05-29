@@ -52,8 +52,7 @@ class UserResource extends Resource
                         Forms\Components\Select::make('roles') //select opsi
                             ->relationship('roles', 'name') //relasi dengan roles dari spatie         
                             ->multiple() //pemilihan role lebih dari 1
-                            ->columnSpan(2)
-                            ->required(), 
+                            ->columnSpan(2), 
                     ]),
             ]);
     }

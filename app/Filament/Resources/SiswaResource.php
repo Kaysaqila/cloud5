@@ -100,8 +100,8 @@ class SiswaResource extends Resource
                 ->getStateUsing(fn ($record) => siswa::orderBy('id')->pluck('id') //ambil semua id dari tabel guru
                 ->search($record->id) + 1),
 
-                Tables\Columns\ImageColumn::make('foto')
-                ->label('Foto'),
+                // Tables\Columns\ImageColumn::make('foto')
+                // ->label('Foto'),
 
                 Tables\Columns\TextColumn::make('nama')
                 ->label('Nama')
@@ -165,11 +165,50 @@ class SiswaResource extends Resource
                 \Filament\Tables\Actions\ActionGroup::make([
                     Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->before(function ($record, $action) {
+                            if ($record->status_lapor_pkl) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Gagal Menghapus')
+                                    ->body("Siswa {$record->nama} masih aktif PKL.")
+                                    ->danger()
+                                    ->send();
+
+                                $action->cancel(); // Hentikan proses hapus tanpa error
+                            }
+                        }),
                 ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->before(function ($records, $action) {
+                            foreach ($records as $record) {
+                                if (isset($record->siswa) && $record->siswa->status_lapor_pkl) {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Gagal Menghapus')
+                                        ->body("Siswa {$record->siswa->nama} masih aktif PKL.")
+                                        ->danger()
+                                        ->send();
+
+                                    $action->cancel(); // Batalkan aksi hapus tanpa melempar exception
+                                    return;
+                                }
+
+                                try {
+                                    $record->delete();
+                                } catch (\Illuminate\Database\QueryException $e) {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Gagal Menghapus')
+                                        ->body('Data siswa tidak dapat dihapus karena masih aktif PKL.')
+                                        ->danger()
+                                        ->send();
+
+                                    $action->cancel(); // Batalkan aksi hapus
+                                    return;
+                                }
+                            }
+                        }),
                 ]),
             ]);
     }
