@@ -57,7 +57,7 @@
                     <th class="px-6 py-3 font-semibold">Kontak</th>
                     <th class="px-6 py-3 font-semibold">Email</th>
                     <th class="px-6 py-3 font-semibold">Website</th>
-                    <th class="px-6 py-3 font-semibold">Aksi</th>
+                    <!-- <th class="px-6 py-3 font-semibold">Aksi</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -70,12 +70,12 @@
                         <td class="px-6 py-4">{{ $industri->kontak }}</td>
                         <td class="px-6 py-4">{{ $industri->email }}</td>
                         <td class="px-6 py-4">{{ $industri->website }}</td>
-                        <td class="px-6 py-4">
+                        <!-- <td class="px-6 py-4">
                             <a href="{{ route('industriEdit', ['id' => $industri->id]) }}"
                                class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
                                 Edit
                             </a>
-                        </td>
+                        </td> -->
                     </tr>
                 @empty
                     <tr>
